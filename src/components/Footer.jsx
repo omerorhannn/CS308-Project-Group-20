@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function Footer({ onOpenModal }) {
+  const navigate = useNavigate();
+
   return (
     <footer className="footer" role="contentinfo">
       <div className="container">
@@ -39,7 +43,7 @@ export default function Footer({ onOpenModal }) {
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenModal('login'); }}>Sign In</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); onOpenModal('register'); }}>Sign Up</a></li>
               <li><a href="#">My Orders</a></li>
-              <li><a href="#">My Wishlist</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); navigate('/wishlist'); }}>My Wishlist</a></li>
             </ul>
           </div>
         </div>
