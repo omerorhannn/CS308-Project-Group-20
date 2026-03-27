@@ -1,12 +1,30 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 
 export default function WishlistPage() {
-  const { items, toggleWishlist } = useWishlist();
+  const { items, addToWishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const [displayItems, setDisplayItems] = useState([]);
+  const [removed, setRemoved] = useState({});
 
-  if (items.length === 0) {
+  useEffect(() => {
+    setDisplayItems((prev) => {
+      const existingIds = prev.map((p) => p.id);
+      const newItems = items.filter((p) => !existingIds.includes(p.id));
+      return [...prev, ...newItems];
+    });
+  }, [items]);
+
+  const handleToggle = (item) => {
+    const isRemoved = removed[item.id];
+    setRemoved((prev) => ({ ...prev, [item.id]: !isRemoved }));
+    if (isRemoved) addToWishlist(item);
+    else removeFromWishlist(item.id);
+  };
+
+  if (displayItems.length === 0) {
     return (
       <section className="cart-page section">
         <div className="container">
@@ -23,16 +41,18 @@ export default function WishlistPage() {
     );
   }
 
+  const activeCount = displayItems.filter((p) => !removed[p.id]).length;
+
   return (
     <section className="cart-page section">
       <div className="container">
         <div className="cart-header">
           <h2 className="section-title">Wishlist</h2>
-          <p className="section-sub">{items.length} item{items.length !== 1 ? 's' : ''} saved</p>
+          <p className="section-sub">{activeCount} item{activeCount !== 1 ? 's' : ''} saved</p>
         </div>
 
         <div className="cart-items">
-          {items.map((item) => (
+          {displayItems.map((item) => (
             <div className="cart-item" key={item.id}>
               <div className="cart-item-image">
                 <img src={item.img} alt={item.name} loading="lazy" />
@@ -53,11 +73,12 @@ export default function WishlistPage() {
                   <i className="fas fa-shopping-bag" /> Add to Cart
                 </button>
                 <button
-                  className="cart-remove-btn"
-                  onClick={() => toggleWishlist(item)}
+                  className={`wishlist-btn${removed[item.id] ? '' : ' active'}`}
+                  onClick={() => handleToggle(item)}
                   aria-label={`Remove ${item.name} from wishlist`}
+                  style={{ position: 'relative', top: 'auto', right: 'auto' }}
                 >
-                  <i className="fas fa-trash-alt" />
+                  <i className={`${removed[item.id] ? 'far' : 'fas'} fa-heart`} />
                 </button>
               </div>
             </div>

@@ -1,22 +1,18 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import useReveal from '../hooks/useReveal';
+import { useCart } from '../context/CartContext';
 import allProducts from '../data/products';
 
-// Derive hero carousel from centralized data — single source of truth
-const heroProducts = allProducts.slice(0, 5).map((p) => ({
-  id: p.id,
-  img: p.img.replace('w=600', 'w=400').replace('h=600', 'h=400'),
-  brand: p.brand,
-  name: p.name,
-  old: p.oldPriceDisplay || '',
-  price: p.priceDisplay,
-}));
+const heroProducts = allProducts.slice(0, 5);
 
 export default function Hero({ onCategorySelect }) {
   const [current, setCurrent] = useState(0);
   const [switching, setSwitching] = useState(false);
   const mainRef = useReveal();
   const visualRef = useReveal();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -71,18 +67,27 @@ export default function Hero({ onCategorySelect }) {
         </div>
         <div className="hero-visual reveal" ref={visualRef}>
           <div className="hero-card-stack">
-            <div className={`hero-product-card${switching ? ' switching' : ''}`}>
+            <div className={`hero-product-card${switching ? ' switching' : ''}`} onClick={() => navigate(`/product/${p.id}`)}>
               <div className="hpc-glow" />
-              <div className="hpc-image">
-                <img src={p.img} alt={`${p.brand} ${p.name}`} />
-              </div>
+              <Link to={`/product/${p.id}`} className="hpc-image">
+                <img src={p.img.replace('w=600', 'w=400').replace('h=600', 'h=400')} alt={`${p.brand} ${p.name}`} />
+              </Link>
               <div className="hpc-info">
                 <span className="hpc-brand">{p.brand}</span>
                 <span className="hpc-name">{p.name}</span>
                 <div className="hpc-price">
-                  {p.old && <span className="hpc-old">{p.old}</span>}
-                  <span className="hpc-new">{p.price}</span>
+                  {p.oldPriceDisplay && <span className="hpc-old">{p.oldPriceDisplay}</span>}
+                  <span className="hpc-new">{p.priceDisplay}</span>
                 </div>
+              </div>
+              <div className="hpc-hover-overlay">
+                <button
+                  className="btn btn-primary btn-sm hpc-cart-btn"
+                  onClick={(e) => { e.stopPropagation(); addToCart(p); }}
+                  disabled={p.stock === 0}
+                >
+                  <i className="fas fa-shopping-bag" /> Add to Cart
+                </button>
               </div>
             </div>
             <div className="hero-orbit">
