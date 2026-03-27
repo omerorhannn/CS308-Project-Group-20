@@ -92,9 +92,9 @@ export default function Header({ onOpenModal, onSearch, selectedCategory, onCate
               <i className="fas fa-user" />
             </button>
           )}
-          <button className="header-icon-btn" aria-label="Wishlist">
+          <Link to="/wishlist" className="header-icon-btn" aria-label="Wishlist">
             <i className="fas fa-heart" />
-          </button>
+          </Link>
           <Link to="/cart" className="header-icon-btn cart-btn" aria-label={`Shopping cart with ${cartCount} items`}>
             <i className="fas fa-shopping-bag" />
             {cartCount > 0 && <span className="cart-badge">{cartCount > 99 ? '99+' : cartCount}</span>}

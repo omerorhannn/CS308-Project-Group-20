@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useReveal from '../hooks/useReveal';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { useWishlist } from '../context/WishlistContext';
 import allProducts from '../data/products';
 
 const tabs = ['All', 'Best Sellers', 'New', 'On Sale'];
@@ -20,14 +21,19 @@ function StarIcon({ value }) {
   return <i className="far fa-star" />;
 }
 
-export default function Products({ searchQuery = '', selectedCategory = null }) {
+export default function Products({ searchQuery = '', selectedCategory = null, onCategorySelect }) {
   const [activeTab, setActiveTab] = useState('All');
   const [sortBy, setSortBy] = useState('default');
   const [wishlisted, setWishlisted] = useState({});
   const [addedMap, setAddedMap] = useState({});
   const { showToast } = useToast();
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist } = useWishlist();
   const headerRef = useReveal();
+
+  useEffect(() => {
+    if (selectedCategory === 'deals') setActiveTab('On Sale');
+  }, [selectedCategory]);
 
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];
@@ -74,9 +80,11 @@ export default function Products({ searchQuery = '', selectedCategory = null }) 
     return result;
   }, [activeTab, searchQuery, sortBy, selectedCategory]);
 
-  const toggleWishlist = (productId) => {
-    const next = !wishlisted[productId];
-    setWishlisted((prev) => ({ ...prev, [productId]: next }));
+  const toggleWishlist = (product) => {
+    const next = !wishlisted[product.id];
+    setWishlisted((prev) => ({ ...prev, [product.id]: next }));
+    if (next) addToWishlist(product);
+    else removeFromWishlist(product.id);
     showToast(
       next ? 'Added to wishlist!' : 'Removed from wishlist.',
       next ? 'success' : 'error'
@@ -108,10 +116,13 @@ export default function Products({ searchQuery = '', selectedCategory = null }) 
               {tabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`tab-btn${activeTab === tab || (tab === 'On Sale' && selectedCategory === 'deals') ? ' active' : ''}`}
-                  onClick={() => setActiveTab(tab)}
+                  className={`tab-btn${activeTab === tab ? ' active' : ''}`}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    if (selectedCategory === 'deals' && tab !== 'On Sale') onCategorySelect('deals');
+                  }}
                   role="tab"
-                  aria-selected={activeTab === tab || (tab === 'On Sale' && selectedCategory === 'deals')}
+                  aria-selected={activeTab === tab}
                 >
                   {tab}
                 </button>
@@ -144,7 +155,7 @@ export default function Products({ searchQuery = '', selectedCategory = null }) 
                 product={p}
                 isWishlisted={!!wishlisted[p.id]}
                 isAdded={!!addedMap[p.id]}
-                onToggleWishlist={() => toggleWishlist(p.id)}
+                onToggleWishlist={() => toggleWishlist(p)}
                 onAddToCart={() => handleAddToCart(p)}
               />
             ))}

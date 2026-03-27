@@ -11,7 +11,7 @@ export default function HomePage({ searchQuery, selectedCategory, onCategorySele
       <Hero onCategorySelect={onCategorySelect} />
       <Features />
       <Categories selectedCategory={selectedCategory} onCategorySelect={onCategorySelect} />
-      <Products searchQuery={searchQuery} selectedCategory={selectedCategory} />
+      <Products searchQuery={searchQuery} selectedCategory={selectedCategory} onCategorySelect={onCategorySelect} />
       <Banners onCategorySelect={onCategorySelect} />
       <Newsletter />
     </>

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import CursorGlow from './components/CursorGlow';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -13,6 +14,7 @@ import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import CartPage from './pages/CartPage';
 import ProductDetail from './pages/ProductDetail';
+import WishlistPage from './pages/WishlistPage';
 
 function AppContent() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,6 +51,7 @@ function AppContent() {
           <Route path="/" element={<HomePage searchQuery={searchQuery} selectedCategory={selectedCategory} onCategorySelect={handleCategorySelect} />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
         </Routes>
       </main>
       <Footer onOpenModal={openModal} />
@@ -65,7 +68,9 @@ export default function App() {
         <ToastProvider>
           <AuthProvider>
             <CartProvider>
-              <AppContent />
+              <WishlistProvider>
+                <AppContent />
+              </WishlistProvider>
             </CartProvider>
           </AuthProvider>
         </ToastProvider>
