@@ -1,11 +1,24 @@
-import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useToast } from './ToastContext';
+
+const GUEST_CART_KEY = 'guest_cart';
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem(GUEST_CART_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const { showToast } = useToast();
+
+  useEffect(() => {
+    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+  }, [items]);
 
   const cartCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
 
